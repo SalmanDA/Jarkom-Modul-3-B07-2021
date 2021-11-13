@@ -275,3 +275,128 @@ Luffy dan Zoro berencana menjadikan **Skypie** sebagai server untuk jual beli ka
 - restart **Skypie,** hasilnya (`ip a`):
     
     ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%208.png)
+    
+## Soal 8
+
+**Loguetown** digunakan sebagai client **Proxy** agar transaksi jual beli dapat terjamin keamanannya, juga untuk mencegah kebocoran data transaksi.
+Pada Loguetown, proxy **harus bisa diakses** dengan nama [**jualbelikapal.yyy.com](http://jualbelikapal.yyy.com/)** dengan port yang digunakan adalah **5000**
+
+- Buat domain mengarah ke proxy di DNS
+    
+    `/etc/bind/named.conf.local` di **EniesLobby**
+    
+    ```
+    zone "jualbelikapal.b07.com" {
+    	type master;
+    	file "/etc/bind/jarkom/jualbelikapal.b07.com";
+    };
+    ```
+    
+- (**EniesLobby**) Buat direktori bernama jarkom, copy `db.local` dan beri nama `jualbelikapal.b07.com`
+    
+    ```
+    mkdir /etc/bind/jarkom
+    cp /etc/bind/db.local /etc/bind/jarkom/jualbelikapal.b07.com
+    ```
+    
+- (**EniesLobby**) Tambahkan konfigurasi pada `/etc/bind/jarkom/jualbelikapal.b07.com`, seperti gambar di bawah ini
+    
+    ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%209.png)
+    
+- Setelah domain berhasil dibuat, buat proxy. Pada **Water7**, lakukan konfigurasi pada file `/etc/squid/squid.conf`
+    
+    ```
+    http_port 5000
+    visible_hostname Water7
+    
+    http_access allow all
+    ```
+    
+- Restart squid → `service squid restart`
+- Pada **Loguetown**, aktifkan proxy → `export http_proxy="http://jualbelikapal.b07.com:5000"`
+    
+    kemudian cek dengan `lynx http://its.ac.id` .
+    
+    ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%2010.png)
+    
+
+## Soal 9
+
+Agar transaksi jual beli lebih aman dan pengguna website ada dua orang, proxy ****dipasang **autentikasi user proxy dengan enkripsi MD5** dengan **dua username,** yaitu luffybelikapalyyy dengan password ****luffy_yyy **dan** zorobelikapalyyy dengan password zoro_yyy
+
+- Pada **Water7**, jalankan:
+    
+    `apt-get update`
+    
+    `apt-get install apache2-utils -y`
+    
+    `touch /etc/squid/passwd`
+    
+    `htpasswd -m /etc/squid/passwd luffybelikapalb07`
+    
+    - kemudian masukkan password → `luffy_b07`
+    
+    `htpasswd -m /etc/squid/passwd zorobelikapalb07`
+    
+    - kemudian masukkan password → `zoro_b07`
+- Kemudian, edit file `/etc/squid/squid.conf`.
+    
+    ```
+    http_port 5000
+    visible_hostname Water7
+    
+    auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwd
+    auth_param basic children 5
+    auth_param basic realm Proxy
+    auth_param basic credentialsttl 2 hours
+    auth_param basic casesensitive on
+    acl USERS proxy_auth REQUIRED
+    http_access allow USERS
+    ```
+    
+- Restart squid → `service squid start`.
+- `lynx [http://its.ac.id](http://its.ac.id)` sebagai **Loguetown**
+    
+    ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%2011.png)
+    
+
+## Soal 10
+
+Transaksi jual beli tidak dilakukan setiap hari, oleh karena itu akses internet dibatasi hanya dapat diakses setiap hari **Senin-Kamis pukul 07.00-11.00** dan setiap hari **Selasa-Jum’at pukul 17.00-03.00** keesokan harinya **(sampai Sabtu pukul 03.00)**
+
+- Pada **Water7**, ubah `/etc/squid/acl.conf` menjadi:
+    
+    ```
+    acl AVAILABLE_WORKING time MTWH 07:00-11:00
+    acl AVAILABLE_WORKING1 time TWHF 17:00-24:00
+    acl AVAILABLE_WORKING2 time WHFA 00:00-03:00
+    ```
+    
+- edit `/etc/squid/squid.conf` menjadi:
+    
+    ```
+    include /etc/squid/acl.conf
+    
+    http_port 5000
+    visible_hostname Water7
+    
+    auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwd
+    auth_param basic children 5
+    auth_param basic realm Proxy
+    auth_param basic credentialsttl 2 hours
+    auth_param basic casesensitive on
+    acl USERS proxy_auth REQUIRED
+    http_access allow AVAILABLE_WORKING USERS
+    http_access allow AVAILABLE_WORKING1 USERS
+    http_access allow AVAILABLE_WORKING2 USERS
+    
+    http_access deny all
+    ```
+    
+- restart squid → `service squid restart`
+- untuk mengecek, gunakan sintaks dibawah ini untuk mengubah date time
+    - `date -s "12 NOV 2021 16:00:00"` (access denied)
+    - `date -s "12 NOV 2021 18:00:00"` (access accepted)
+- coba akses `lynx http://its.ac.id` melalui **Loguetown** diluar waktu AVAILABLE_WORKING (jalankan `date -s "12 NOV 2021 16:00:00"`)**,** maka akan muncul `Access Denied` seperti gambar dibawah ini
+    
+    ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%2012.png)
