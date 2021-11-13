@@ -182,3 +182,51 @@ Ada beberapa kriteria yang ingin dibuat oleh Luffy dan Zoro, yaitu:
     - Untuk mengecek, jalankan `ip a` pada Loguetown.
     
     ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%202.png)
+
+## Soal 4
+
+Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.30 - [prefix IP].3.50
+
+- tambah ini di → `nano /etc/dhcp/dhcpd.conf` (Jipangu)
+    
+    ```
+    subnet 192.180.3.0 netmask 255.255.255.0 {
+        range 192.180.3.30 192.180.3.50;
+        option routers 192.180.3.1;
+        option broadcast-address 192.180.3.255;
+        option domain-name-servers 192.180.2.2;
+        default-lease-time 720;
+        max-lease-time 7200;
+    }
+    ```
+    
+    - restart dhcp server → `service isc-dhcp-server restart` → `service isc-dhcp-server status`
+    - Untuk mengecek, jalankan `ip a` pada TottoLand
+    
+    ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%203.png)
+    
+
+## Soal 5
+
+Client mendapatkan DNS dari EniesLobby dan client dapat terhubung dengan internet melalui DNS tersebut.
+
+- Tambahkan DNS Forwarder di EniesLobby
+    
+    `nano /etc/bind/named.conf.options` (EniesLobby)
+    
+    ```
+    # uncomment dan tambah
+    forwarders {
+        192.168.122.1;
+    };
+    
+    # comment
+    // dnssec-validation auto;
+    
+    # tambahkan
+    allow-query{any;};
+    ```
+    
+    ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%204.png)
+    
+    - restart bind9 (EniesLobby) → `service bind9 restart`
