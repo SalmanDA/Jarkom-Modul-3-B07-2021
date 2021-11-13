@@ -230,3 +230,48 @@ Client mendapatkan DNS dari EniesLobby dan client dapat terhubung dengan interne
     ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%204.png)
     
     - restart bind9 (EniesLobby) → `service bind9 restart`
+
+## Soal 6
+
+Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch1 selama 6 menit sedangkan pada client yang melalui Switch3 selama 12 menit. Dengan waktu maksimal yang dialokasikan untuk peminjaman alamat IP selama 120 menit. *(sudah sekaligus dikerjakan pada nomor 3 dan 4)*
+
+- Switch 1: 6 menit → 360 detik
+- Switch 3: 12 menit → 720 detik
+- Max: 120 menit → 7200 detik
+- SS dari `cat /etc/dhcp/dhcpd.conf` (Jipangu)
+    
+    ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%205.png)
+    
+
+## Soal 7
+
+Luffy dan Zoro berencana menjadikan **Skypie** sebagai server untuk jual beli kapal yang dimilikinya dengan **alamat IP yang tetap** dengan IP [prefix IP].3.69
+
+- cek hwadress di **Skypie → `ip a`**
+    
+    ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%206.png)
+    
+    - hwadress **Skypie** → `ae:ac:30:1c:73:be`
+- tambah config dhcp **Jipangu →** `nano /etc/dhcp/dhcpd.conf`
+    
+    ```
+    # tambah
+    host Skypie {
+        hardware ethernet ae:ac:30:1c:73:be;
+        fixed-address 192.180.3.69;
+    }
+    ```
+    
+    - restart dhcp server → `service isc-dhcp-server restart` → `service isc-dhcp-server status`
+- tambah network config di **Skypie →** `nano /etc/network/interfaces`
+    
+    ```
+    # tambah
+    hwaddress ether ae:ac:30:1c:73:be
+    ```
+    
+    ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%207.png)
+    
+- restart **Skypie,** hasilnya (`ip a`):
+    
+    ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%208.png)
