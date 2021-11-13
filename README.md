@@ -279,7 +279,7 @@ Luffy dan Zoro berencana menjadikan **Skypie** sebagai server untuk jual beli ka
 ## Soal 8
 
 **Loguetown** digunakan sebagai client **Proxy** agar transaksi jual beli dapat terjamin keamanannya, juga untuk mencegah kebocoran data transaksi.
-Pada Loguetown, proxy **harus bisa diakses** dengan nama [**jualbelikapal.yyy.com](http://jualbelikapal.yyy.com/)** dengan port yang digunakan adalah **5000**
+Pada Loguetown, proxy **harus bisa diakses** dengan nama ***http://jualbelikapal.yyy.com/** dengan port yang digunakan adalah **5000**
 
 - Buat domain mengarah ke proxy di DNS
     
