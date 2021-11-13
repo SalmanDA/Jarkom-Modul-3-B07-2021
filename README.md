@@ -16,7 +16,7 @@ Prefix IP dari kelompok kami adalah `192.180`
 
 Luffy bersama Zoro berencana membuat peta tersebut dengan kriteria EniesLobby sebagai DNS Server, Jipangu sebagai DHCP Server, Water7 sebagai Proxy Server 
 
-- Pertama, memberi **Foosha** konfigurasi sehingga dapat memberikan internet kepada **EniesLobby**, **Jipangu**, dan **Water7**
+- Pertama **Foosha** dikonfigurasi sehingga dapat memberikan internet kepada **EniesLobby**, **Jipangu**, dan **Water7**
     - Network Configuration (**Foosha**)
         
         ```
@@ -39,19 +39,13 @@ Luffy bersama Zoro berencana membuat peta tersebut dengan kriteria EniesLobby se
         	netmask 255.255.255.0
         ```
         
-    - Agar komputer di bawahnya bisa mendapatkan internet
+    - Agar dapat mengakses internet
         
         ```
         iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 192.180.0.0/16
         ```
         
-    - Cek nameserver: hasil → 192.168.122.1 (nameserver foosha)
-        
-        ```
-        cat /etc/resolv.conf
-        ```
-        
-- Konfigurasi **EniesLobby**, **Jipangu**, dan **Water7**
+- Konfigurasi Server
     - EniesLobby → DNS Server
         
         ```
@@ -62,7 +56,7 @@ Luffy bersama Zoro berencana membuat peta tersebut dengan kriteria EniesLobby se
           gateway 192.180.2.1
         ```
         
-        save di `/root/.bashrc`
+        Kemudian melakukan command berikut yang disimpan pada `/root/.bashrc`
         
         ```
         echo nameserver 192.168.122.1 > /etc/resolv.conf
@@ -82,7 +76,7 @@ Luffy bersama Zoro berencana membuat peta tersebut dengan kriteria EniesLobby se
           gateway 192.180.2.1
         ```
         
-        save  di `/root/.bashrc`
+        Kemudian melakukan command berikut yang disimpan pada `/root/.bashrc`
         
         ```
         echo nameserver 192.168.122.1 > /etc/resolv.conf
@@ -98,7 +92,7 @@ Luffy bersama Zoro berencana membuat peta tersebut dengan kriteria EniesLobby se
         nano /etc/default/isc-dhcp-server
         ```
         
-        ubah menjadi
+        pada `INTERFACES=""` ubah menjadi
         
         ```
         INTERFACES="eth0"
@@ -115,7 +109,7 @@ Luffy bersama Zoro berencana membuat peta tersebut dengan kriteria EniesLobby se
           gateway 192.180.2.1
         ```
         
-        save di `/root/.bashrc`
+        Kemudian melakukan command berikut yang disimpan pada `/root/.bashrc`
         
         ```
         echo nameserver 192.168.122.1 > /etc/resolv.conf
@@ -131,7 +125,7 @@ Luffy bersama Zoro berencana membuat peta tersebut dengan kriteria EniesLobby se
 
 Foosha sebagai DHCP Relay
 
-- Foosha → install DHCP relay
+- Foosha → DHCP relay
     
     ```
     iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 192.180.0.0/16
@@ -140,7 +134,7 @@ Foosha sebagai DHCP Relay
     apt-get install isc-dhcp-relay -y
     ```
     
-- Isikan konfigutrasi seperti ini pada `/etc/default/isc-dhcp-relay`
+- Mengkonfigurasi seperti berikut pada `/etc/default/isc-dhcp-relay`
     
     ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%201.png)
     
@@ -179,7 +173,7 @@ Ada beberapa kriteria yang ingin dibuat oleh Luffy dan Zoro, yaitu:
     ```
     
     - restart dhcp server → `service isc-dhcp-server restart` → `service isc-dhcp-server status`
-    - Untuk mengecek, jalankan `ip a` pada Loguetown.
+    - kemudian cek ip pada **Loguetown**(berada pada switch1) dengan menjalankan `ip a`. 
     
     ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%202.png)
 
@@ -187,7 +181,7 @@ Ada beberapa kriteria yang ingin dibuat oleh Luffy dan Zoro, yaitu:
 
 Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.30 - [prefix IP].3.50
 
-- tambah ini di → `nano /etc/dhcp/dhcpd.conf` (Jipangu)
+- Menambahkan config berikut pada → `nano /etc/dhcp/dhcpd.conf` (Jipangu)
     
     ```
     subnet 192.180.3.0 netmask 255.255.255.0 {
@@ -201,7 +195,7 @@ Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.30 - [prefix
     ```
     
     - restart dhcp server → `service isc-dhcp-server restart` → `service isc-dhcp-server status`
-    - Untuk mengecek, jalankan `ip a` pada TottoLand
+    - kemudian cek ip pada **Tottoland**(berada pada switch3) dengan menjalankan `ip a`
     
     ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%203.png)
     
@@ -210,7 +204,7 @@ Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.30 - [prefix
 
 Client mendapatkan DNS dari EniesLobby dan client dapat terhubung dengan internet melalui DNS tersebut.
 
-- Tambahkan DNS Forwarder di EniesLobby
+- Menambahkan DNS Forwarder pada EniesLobby
     
     `nano /etc/bind/named.conf.options` (EniesLobby)
     
@@ -279,7 +273,7 @@ Luffy dan Zoro berencana menjadikan **Skypie** sebagai server untuk jual beli ka
 ## Soal 8
 
 **Loguetown** digunakan sebagai client **Proxy** agar transaksi jual beli dapat terjamin keamanannya, juga untuk mencegah kebocoran data transaksi.
-Pada Loguetown, proxy **harus bisa diakses** dengan nama ***http://jualbelikapal.yyy.com/** dengan port yang digunakan adalah **5000**
+Pada Loguetown, proxy **harus bisa diakses** dengan nama **http://jualbelikapal.yyy.com/** dengan port yang digunakan adalah **5000**
 
 - Buat domain mengarah ke proxy di DNS
     
@@ -292,7 +286,7 @@ Pada Loguetown, proxy **harus bisa diakses** dengan nama ***http://jualbelikapal
     };
     ```
     
-- (**EniesLobby**) Buat direktori bernama jarkom, copy `db.local` dan beri nama `jualbelikapal.b07.com`
+- (**EniesLobby**) Membuat direktori bernama jarkom, copy `db.local` dan beri nama `jualbelikapal.b07.com`
     
     ```
     mkdir /etc/bind/jarkom
@@ -303,7 +297,7 @@ Pada Loguetown, proxy **harus bisa diakses** dengan nama ***http://jualbelikapal
     
     ![Untitled](Modul%203%20f647bcde7df740e18d77f6606b0995c7/Untitled%209.png)
     
-- Setelah domain berhasil dibuat, buat proxy. Pada **Water7**, lakukan konfigurasi pada file `/etc/squid/squid.conf`
+- Setelah domain berhasil dibuat, kemudian buat proxy. Pada **Water7**, lakukan konfigurasi pada file `/etc/squid/squid.conf`
     
     ```
     http_port 5000
@@ -322,15 +316,14 @@ Pada Loguetown, proxy **harus bisa diakses** dengan nama ***http://jualbelikapal
 
 ## Soal 9
 
-Agar transaksi jual beli lebih aman dan pengguna website ada dua orang, proxy ****dipasang **autentikasi user proxy dengan enkripsi MD5** dengan **dua username,** yaitu luffybelikapalyyy dengan password ****luffy_yyy **dan** zorobelikapalyyy dengan password zoro_yyy
+Agar transaksi jual beli lebih aman dan pengguna website ada dua orang, proxy dipasang **autentikasi user proxy dengan enkripsi MD5** dengan **dua username**, yaitu luffybelikapalyyy dengan password luffy_yyy dan zorobelikapalyyy dengan password zoro_yyy 
 
 - Pada **Water7**, jalankan:
-    
-    `apt-get update`
-    
-    `apt-get install apache2-utils -y`
-    
-    `touch /etc/squid/passwd`
+    ```
+    apt-get update
+    apt-get install apache2-utils -y
+    touch /etc/squid/passwd
+    ```
     
     `htpasswd -m /etc/squid/passwd luffybelikapalb07`
     
@@ -372,7 +365,7 @@ Transaksi jual beli tidak dilakukan setiap hari, oleh karena itu akses internet 
     acl AVAILABLE_WORKING2 time WHFA 00:00-03:00
     ```
     
-- edit `/etc/squid/squid.conf` menjadi:
+- edit isi file `/etc/squid/squid.conf` menjadi seperti berikut:
     
     ```
     include /etc/squid/acl.conf
